@@ -79,6 +79,7 @@ Module.register("MMM-FrameLight", {
 	getTranslations: function () {
 		return {
 			en: "translations/en.json",
+			fr: "translations/fr.json",
 			de: "translations/de.json"
 		};
 	},
