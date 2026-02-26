@@ -1,5 +1,5 @@
 #MMM-FrameLight
-#Description:   Python script for controlling WS2801 RGB LED strip
+#Description:   Python script for controlling WS2801/WS2812 RGB LED strip
 #Authors:       RaspiManu and ViatorisBaculum
 #License:       MPL-2.0
 
@@ -407,6 +407,7 @@ import time
 import math
 import random
 import board
+import neopixel
 import argparse
 import json
 import adafruit_ws2801
@@ -426,6 +427,9 @@ if data != []:
 if "LEDType" in data and "LEDCount" in data:
     if data["LEDType"] == "WS2801":
         leds = adafruit_ws2801.WS2801(oclock, odata, data["LEDCount"], brightness=bright, auto_write=False)
+    if data["LEDType"] == "WS2812":
+        keds = neopixel.NeoPixel(board.D18, data["LEDCount"], brightness=bright, auto_write=False)
+
 
 #Start Effect
 if "options" in data:                                                                                                                           #is there a defined effect with options?
