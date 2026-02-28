@@ -1,5 +1,5 @@
 #MMM-FrameLight
-#Description:   Python script for controlling WS2801 RGB LED strip
+#Description:   Python script for controlling WS2801/WS2812 RGB LED strip
 #Authors:       RaspiManu and ViatorisBaculum
 #License:       MPL-2.0
 
@@ -28,10 +28,10 @@ def deinitialise_LED_strip(leds):
 #Name:          Blink Color
 #Description:   lets LED strip blink in defined color
 def blink_color(leds, activeColor, color1=(255,255,255), cycles=2, time_per_step=0.5):
-    
+
     #set color
     color_blink = color1
-    
+
     #effect loop
     for i in range(cycles):
         leds.fill(color_blink)
@@ -44,16 +44,16 @@ def blink_color(leds, activeColor, color1=(255,255,255), cycles=2, time_per_step
 #Name:          Rainbow Cycle Successive
 #Description:   fills LED strip with rainbow colors successively while defined color is in background
 def rainbow_cycle_successive(leds, color1=(0,0,0), cycles = 2, time_per_step=0.02):
-    
+
     #set color
     color_background = color1
-    
+
     #effect loop
     for i in range(cycles):
-        
+
         #fill background
         leds.fill(color_background)
-        
+
         #fill LED strip with rainbow
         for j in range(len(leds)):
             leds[j] = color_wheel(((j * 256 // len(leds))) % 256)           #helper function color_wheel to define color
@@ -63,7 +63,7 @@ def rainbow_cycle_successive(leds, color1=(0,0,0), cycles = 2, time_per_step=0.0
 #Name:          Rainbow Cycle
 #Description:   lets all rainbow colors spin around at once
 def rainbow_cycle(leds, cycles=2, time_per_step=0.005):
-    
+
     #effect loop
     for i in range(cycles):
         for j in range(256):                                                #256 color steps per LED for one cycle
@@ -75,7 +75,7 @@ def rainbow_cycle(leds, cycles=2, time_per_step=0.005):
 #Name:          Rainbow Colors
 #Description:   shifts through all rainbow colors while LED strip only shows one color at a time
 def rainbow_colors(leds, cycles = 2, time_per_step=0.05):
-    
+
     #effect loop
     for i in range(cycles):
         for j in range(256):                                                #256 color steps per LED for one cycle
@@ -88,21 +88,21 @@ def rainbow_colors(leds, cycles = 2, time_per_step=0.05):
 #Description:   spawns "trains" at the end of the LED strip moving to the start until strip is filled
 #Special:       switches the defined colors every cycle
 def docking_trains(leds, color1=(255,0,0), color2=(0,255,0), cycles=4, time_per_step=0.01, length=10):
-    
+
     #set number of trains
     trains_per_cycle = math.ceil(len(leds)/length)                          #math.ceil rounds up so the LED strip gets completely filled
-    
+
     #set colors
     color_background = color1
     color_moving = color2
-    
+
     #fill background
     leds.fill(color_background)
     leds.show()
-    
+
     #effect loop
     for i in range(cycles):
-        
+
         #train movement
         for j in range(trains_per_cycle):
             for k in reversed(range(j*length, len(leds))):
@@ -111,7 +111,7 @@ def docking_trains(leds, color1=(255,0,0), color2=(0,255,0), cycles=4, time_per_
                     leds[k+length] = color_background
                 leds.show()
                 time.sleep(time_per_step)
-                
+
         #color switch after every cycle
         if color_background == color1:
             color_background = color2
@@ -124,29 +124,29 @@ def docking_trains(leds, color1=(255,0,0), color2=(0,255,0), cycles=4, time_per_
 #Name:          KITT
 #Description:   imitates the LED bar of K.I.T.T. from Knight Rider
 def KITT(leds, color1=(0,0,0), color2=(255,0,0), cycles=2, time_per_step=0.005, length=10):
-    
+
     #set colors
     color_background = color1
     color_moving = color2
-    
+
     #fill background
     leds.fill(color_background)
-    
+
     #fill start segment for effect
     for i in range(0,length):
         leds[i] = color_moving
     leds.show()
-    
+
     #effect loop
     for j in range(cycles):
-        
+
         #move from start to end of LED strip
         for k in range(length,len(leds)):
             leds[k] = color_moving
             leds[k-length] = color_background
             leds.show()
             time.sleep(time_per_step)
-            
+
         #move from end back to start of LED strip
         for l in reversed(range(length,len(leds))):
             leds[l] = color_background
@@ -158,29 +158,29 @@ def KITT(leds, color1=(0,0,0), color2=(255,0,0), cycles=2, time_per_step=0.005, 
 #Description:   splits LED strip into given number of segments with two different colors and lets them wobble
 #Special:       has a safety function that deflects to the next best number of segments if the given number is not feasible
 def wobbling_segments(leds, color1=(0,0,0), color2=(255,0,0), cycles=2, time_per_step=0.1, segments=10, wobble_factor=1):
-    
+
     #set segment options with check
     #checking given segment value and find next fitting one, if given one does not fit
-    
+
     #print("number of LEDs: ", len(leds))                                               #Debug command
     #print("given number of segments: ", segments)                                      #Debug command
-    
+
     #given segment value is not feasible
     if not segments % 2 == 0 and not len(leds) / segments % 1 == 0:
         #print("searching for fitting values")                                          #Debug command
         divisors = []
         possible_segments = []
-        
+
         #check for divisors of LED count
         for i in range(1,len(leds)+1):
             if len(leds) / i % 1 == 0:
                 divisors.append(i)
-                
+
         #check for divisors that fit to effect
         for j in divisors:
             if len(leds) / j % 2 == 0:
                 possible_segments.append(int(len(leds) / j))
-                
+
         #check for fitting segment value that is closest to user defined segment value
         possible_segments.sort()
         pos = bisect_left(possible_segments, segments)
@@ -195,12 +195,12 @@ def wobbling_segments(leds, color1=(0,0,0), color2=(255,0,0), cycles=2, time_per
                 segments_fit = after
             else:
                 segments_fit = before
-        
+
         #set segment length
         segment_length_fit = int(len(leds)/ segments_fit)
         #print("divisors of number of LEDs: ", divisors)                                #Debug command
         #print("possible numbers of segments: ", possible_segments)                     #Debug command
-    
+
     #given segment value is feasible
     else:
         #print("given values are fitting")                                              #Debug command
@@ -209,11 +209,11 @@ def wobbling_segments(leds, color1=(0,0,0), color2=(255,0,0), cycles=2, time_per
 
     #print("fitting number of segments: ", segments_fit)                                #Debug command
     #print("fitting length of segments: ", segment_length_fit)                          #Debug command
-    
+
     #set colors
     color_background = color1
     color_moving = color2
-    
+
     #set wobble steps
     wobble_steps = math.ceil(wobble_factor*segment_length_fit)  #math.ceil rounds up wobble steps to fitting LED count
 
@@ -223,10 +223,10 @@ def wobbling_segments(leds, color1=(0,0,0), color2=(255,0,0), cycles=2, time_per
         for j in range(0,segments_fit,2):
             leds[i+j*segment_length_fit] = color_moving
     leds.show()
-    
+
     #effect loop
     for k in range(cycles):
-        
+
         #wobble towards the end of LED strip
         for l in range(wobble_steps):
             for m in range(0,segments_fit,2):
@@ -234,7 +234,7 @@ def wobbling_segments(leds, color1=(0,0,0), color2=(255,0,0), cycles=2, time_per
                 leds[l+m*segment_length_fit] = color_background
             leds.show()
             time.sleep(time_per_step)
-        
+
         #wobble towards the start of LED strip
         for n in reversed(range(wobble_steps)):
             for o in range(0,segments_fit,2):
@@ -246,96 +246,96 @@ def wobbling_segments(leds, color1=(0,0,0), color2=(255,0,0), cycles=2, time_per
 #Name:          Swipe Move
 #Description:   shows a mono or bidirectional swipe move
 def swipe_move(leds, color1=(0,0,0), color2=(0,255,0), cycles=2, time_per_step=0.02, movement_start=1, movement_direction="right", movement_width=10, bar_length=3, offset_start=0):
-    
+
     #set colors
     color_background = color1
     color_moving = color2
-    
+
     #effect loop
     for i in range(cycles):
-        
+
         #set start of effect
         leds.fill(color_background)
         leds.show()
         time.sleep(time_per_step)
-        
+
         #show swipe move
         for j in range(movement_width):
-            
+
             #swipe move in right direction
             if movement_direction == "right":
-                
+
                 #set LED positions of front and back of moving bar
                 led_position_bar_front = position_wheel(movement_start - 1 + offset_start + j, len(leds))                           #helper function position_wheel to set feasible LED position
                 led_position_bar_back = position_wheel(movement_start - 1 + offset_start + j - bar_length, len(leds))               #helper function position_wheel to set feasible LED position
-                
+
                 #change colors at front and back of moving bar
                 leds[led_position_bar_front] = color_moving
                 #print(led_position_bar_front, "(LED #", led_position_bar_front + 1, ") now color_moving")                          #Debug command
                 if j >= bar_length:
                     leds[led_position_bar_back] = color_background
                     #print(led_position_bar_back, "(LED #", led_position_bar_back + 1, ") now color_background")                    #Debug command
-            
+
             #swipe move in left direction
             elif movement_direction == "left":
-                
+
                 #set LED positions of front and back of moving bar
                 led_position_bar_front = position_wheel(movement_start - 1 - offset_start - j, len(leds))                           #helper function position_wheel to set feasible LED position
                 led_position_bar_back = position_wheel(movement_start - 1 - offset_start - j + bar_length, len(leds))               #helper function position_wheel to set feasible LED position
-                
+
                 #change colors at front and back of moving bar
                 leds[led_position_bar_front] = color_moving
                 #print(led_position_bar_front, "(LED #", led_position_bar_front + 1, ") now color_moving")                          #Debug command
                 if j >= bar_length:
                     leds[led_position_bar_back] = color_background
                     #print(led_position_bar_back, "(LED #", led_position_bar_back + 1, ") now color_background")                    #Debug command
-            
+
             #swipe move in both directions
             elif movement_direction == "both":
-                
+
                 #swipe move in right direction
-                
+
                 #set LED positions of front and back of bar moving in right direction
                 led_position_bar_right_front = position_wheel(movement_start - 1 + offset_start + j, len(leds))                     #helper function position_wheel to set feasible LED position
                 led_position_bar_right_back = position_wheel(movement_start - 1 + offset_start + j - bar_length, len(leds))         #helper function position_wheel to set feasible LED position
-                
+
                 #change colors at front and back of bar moving in right direction
                 leds[led_position_bar_right_front] = color_moving
                 #print(led_position_bar_right_front, "(LED #", led_position_bar_right_front + 1, ") now color_moving")              #Debug command
                 if j >= bar_length:
                     leds[led_position_bar_right_back] = color_background
                     #print(led_position_bar_right_back, "(LED #", led_position_bar_right_back + 1, ") now color_background")        #Debug command
-                
+
                 #swipe move in left direction
-                
+
                 #if number of LEDs is even --> center of effect between 2 LEDs
                 if len(leds) % 2 == 0:
-                    
+
                     #set LED positions of front and back of bar moving in left direction
                     led_position_bar_left_front = position_wheel(movement_start - 2 - offset_start - j, len(leds))                  #helper function position_wheel to set feasible LED position
                     led_position_bar_left_back = position_wheel(movement_start - 2 - offset_start - j + bar_length, len(leds))      #helper function position_wheel to set feasible LED position
-                    
+
                     #change colors at front and back of bar moving in left direction
                     leds[led_position_bar_left_front] = color_moving
                     #print(led_position_bar_left_front, "(LED #", led_position_bar_left_front + 1, ") now color_moving")            #Debug command
                     if j >= bar_length:
                         leds[led_position_bar_left_back] = color_background
                         #print(led_position_bar_left_back, "(LED #", led_position_bar_left_back + 1, ") now color_background")      #Debug command
-                
+
                 #if number of LEDs is uneven --> center of effect is 1 LED
                 else:
-                    
+
                     #set LED positions of front and back of bar moving in left direction
                     led_position_bar_left_front = position_wheel(movement_start - 1 - offset_start - j, len(leds))                  #helper function position_wheel to set feasible LED position
                     led_position_bar_left_back = position_wheel(movement_start - 1 - offset_start - j + bar_length, len(leds))      #helper function position_wheel to set feasible LED position
-                    
+
                     #change colors at front and back of bar moving in left direction
                     leds[led_position_bar_left_front] = color_moving
                     #print(led_position_bar_left_front, "(LED #", led_position_bar_left_front + 1, ") now color_moving")            #Debug command
                     if j >= bar_length:
                         leds[led_position_bar_left_back] = color_background
                         #print(led_position_bar_left_back, "(LED #", led_position_bar_left_back + 1, ") now color_background")      #Debug command
-            
+
             #refresh LED strip
             leds.show()
             #print("--- next step ---")                                                                                             #Debug command
@@ -407,6 +407,7 @@ import time
 import math
 import random
 import board
+import neopixel
 import argparse
 import json
 import adafruit_ws2801
@@ -426,6 +427,8 @@ if data != []:
 if "LEDType" in data and "LEDCount" in data:
     if data["LEDType"] == "WS2801":
         leds = adafruit_ws2801.WS2801(oclock, odata, data["LEDCount"], brightness=bright, auto_write=False)
+    if data["LEDType"] == "WS2812":
+        leds = neopixel.NeoPixel(board.D18, data["LEDCount"], brightness=bright, auto_write=False)
 
 #Start Effect
 if "options" in data:                                                                                                                           #is there a defined effect with options?
